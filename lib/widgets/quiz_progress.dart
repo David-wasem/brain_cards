@@ -59,6 +59,8 @@ class _QuizProgressState extends State<QuizProgress> {
             ),
             SizedBox(height: 10),
             LinearProgressBar(
+              animateProgress: true,
+              animationDuration: Duration(milliseconds: 200),
               progressType: ProgressType.linear,
               progressColor: Colors.white,
               backgroundColor: Colors.white.withOpacity(0.3),

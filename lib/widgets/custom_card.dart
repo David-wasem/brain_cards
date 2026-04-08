@@ -186,6 +186,7 @@ class _CustomCardState extends State<CustomCard> {
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF2F4D77),
                       ),
+                      textAlign: TextAlign.center,
                     )
                   : Text(
                       "Wrong Answer",
