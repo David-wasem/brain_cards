@@ -5,10 +5,12 @@ import 'package:flutter_flip_card/flutter_flip_card.dart';
 class CustomCard extends StatefulWidget {
   final int indexOfQuiz;
   final List<Quiz> quizzes;
+  final Function(bool) onCorrectAnswer;
   const CustomCard({
     super.key,
     required this.indexOfQuiz,
     required this.quizzes,
+    required this.onCorrectAnswer,
   });
 
   @override
@@ -24,6 +26,7 @@ class _CustomCardState extends State<CustomCard> {
     Color(0xFFF59E0B),
     Color(0xFFEF4444),
   ];
+  bool _isCorrect = false;
   @override
   Widget build(BuildContext context) {
     return FlipCard(
@@ -75,11 +78,21 @@ class _CustomCardState extends State<CustomCard> {
                               widget
                                   .quizzes[widget.indexOfQuiz]
                                   .correctAnswer) {
-                            _flipController.flipcard();
-                            Future.delayed(const Duration(seconds: 1), () {
-                              _flipController.flipcard();
+                            setState(() {
+                              _isCorrect = true;
+                            });
+                            Future.delayed(const Duration(seconds: 2), () {
+                              widget.onCorrectAnswer(true);
+                            });
+                          } else {
+                            setState(() {
+                              _isCorrect = false;
                             });
                           }
+                          _flipController.flipcard();
+                          Future.delayed(const Duration(seconds: 1), () {
+                            _flipController.flipcard();
+                          });
                         },
                         child: Ink(
                           decoration: BoxDecoration(
@@ -154,19 +167,34 @@ class _CustomCardState extends State<CustomCard> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle, color: Colors.green, size: 40),
+            _isCorrect
+                ? Icon(
+                    Icons.check_circle_rounded,
+                    color: Colors.green,
+                    size: 40,
+                  )
+                : Icon(Icons.close_rounded, color: Colors.red, size: 40),
             SizedBox(height: 10),
             Center(
-              child: Text(
-                widget.quizzes[widget.indexOfQuiz].options[widget
-                    .quizzes[widget.indexOfQuiz]
-                    .correctAnswer],
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2F4D77),
-                ),
-              ),
+              child: _isCorrect
+                  ? Text(
+                      widget.quizzes[widget.indexOfQuiz].options[widget
+                          .quizzes[widget.indexOfQuiz]
+                          .correctAnswer],
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2F4D77),
+                      ),
+                    )
+                  : Text(
+                      "Wrong Answer",
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2F4D77),
+                      ),
+                    ),
             ),
           ],
         ),

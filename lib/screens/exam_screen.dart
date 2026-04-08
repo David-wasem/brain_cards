@@ -48,7 +48,11 @@ class _ExamScreenState extends State<ExamScreen> {
                 carouselController: _carouselController,
                 itemCount: quizzes.length,
                 itemBuilder: (context, index, realIndex) {
-                  return CustomCard(indexOfQuiz: index, quizzes: quizzes);
+                  return CustomCard(
+                    indexOfQuiz: index,
+                    quizzes: quizzes,
+                    onCorrectAnswer: onCorrectAnswer,
+                  );
                 },
                 options: CarouselOptions(
                   onPageChanged: (index, reason) {
@@ -120,7 +124,46 @@ class _ExamScreenState extends State<ExamScreen> {
                         ),
                       ),
                 (_currentIndex >= quizzes.length - 1)
-                    ? Container()
+                    ? InkWell(
+                        onTap: () {},
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF5ADB5E),
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFF5ADB5E,
+                                ).withOpacity(0.45),
+                                blurRadius: 16,
+                                offset: Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.done_all_rounded,
+                                color: Colors.white,
+                                size: 26,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                "Finish",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
                     : InkWell(
                         onTap: () {
                           _carouselController.nextPage(
@@ -182,5 +225,14 @@ class _ExamScreenState extends State<ExamScreen> {
         ],
       ),
     );
+  }
+
+  void onCorrectAnswer(bool isCorrect) {
+    if (isCorrect) {
+      _carouselController.nextPage(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+      );
+    }
   }
 }
