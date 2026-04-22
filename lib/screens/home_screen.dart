@@ -1,5 +1,8 @@
 import 'package:brain_cards/models/quiz_list.dart';
+import 'package:brain_cards/models/result_list.dart';
 import 'package:brain_cards/screens/exam_screen.dart';
+import 'package:brain_cards/widgets/drawer.dart';
+import 'package:brain_cards/widgets/recent.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,41 +20,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     List<String> categories = quizList.keys.toList();
     return Scaffold(
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Color(0xFF3B82F6)),
-              child: Text(
-                'Drawer Header',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.message),
-              title: Text('Messages'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.account_circle),
-              title: Text('Profile'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: CustomDrawer(),
       body: Builder(
         builder: (context) => Stack(
           children: [
@@ -244,7 +213,9 @@ class _HomePageState extends State<HomePage> {
                                 builder: (context) =>
                                     ExamScreen(category: currentCategory!),
                               ),
-                            );
+                            ).then((_) {
+                              setState(() {});
+                            });
                           }
                         },
                         child: Container(
@@ -290,7 +261,10 @@ class _HomePageState extends State<HomePage> {
                     ),
                     SizedBox(height: 40),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0,
+                        vertical: 0,
+                      ),
                       child: Text(
                         "Recent Quizzes",
                         style: TextStyle(
@@ -300,17 +274,38 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: Center(
-                        child: Text(
-                          "No recent quizzes",
-                          style: TextStyle(
-                            color: const Color(0xFF757575).withOpacity(0.5),
+                    (resultList.isEmpty)
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20.0),
+                            child: Center(
+                              child: Text(
+                                "No recent quizzes",
+                                style: TextStyle(
+                                  color: const Color(
+                                    0xFF757575,
+                                  ).withOpacity(0.5),
+                                ),
+                              ),
+                            ),
+                          )
+                        : SizedBox(
+                            height: 300,
+                            child: ListView.builder(
+                              padding: const EdgeInsets.only(
+                                top: 8,
+                                bottom: 20,
+                              ),
+                              itemCount: resultList.length,
+                              itemBuilder: (context, index) {
+                                return Recent(
+                                  title: resultList[index].category,
+                                  subtitle:
+                                      "${resultList[index].correctAnswers}/${resultList[index].totalAnswers}",
+                                  tile: "${index + 1}",
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),

@@ -5,12 +5,12 @@ import 'package:flutter_flip_card/flutter_flip_card.dart';
 class CustomCard extends StatefulWidget {
   final int indexOfQuiz;
   final List<Quiz> quizzes;
-  final Function(bool) onCorrectAnswer;
+  final Function(bool, int) onAnswer;
   const CustomCard({
     super.key,
     required this.indexOfQuiz,
     required this.quizzes,
-    required this.onCorrectAnswer,
+    required this.onAnswer,
   });
 
   @override
@@ -74,21 +74,14 @@ class _CustomCardState extends State<CustomCard> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(14),
                         onTap: () {
-                          if (ind ==
-                              widget
-                                  .quizzes[widget.indexOfQuiz]
-                                  .correctAnswer) {
-                            setState(() {
-                              _isCorrect = true;
-                            });
-                            Future.delayed(const Duration(seconds: 2), () {
-                              widget.onCorrectAnswer(true);
-                            });
-                          } else {
-                            setState(() {
-                              _isCorrect = false;
-                            });
-                          }
+                          bool isCorrectAnswer = ind ==
+                              widget.quizzes[widget.indexOfQuiz].correctAnswer;
+                          setState(() {
+                            _isCorrect = isCorrectAnswer;
+                          });
+                          Future.delayed(const Duration(seconds: 2), () {
+                            widget.onAnswer(isCorrectAnswer, widget.indexOfQuiz);
+                          });
                           _flipController.flipcard();
                           Future.delayed(const Duration(seconds: 1), () {
                             _flipController.flipcard();

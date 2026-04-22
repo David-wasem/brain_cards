@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:brain_cards/models/quiz_list.dart';
 import 'package:brain_cards/widgets/custom_card.dart';
 import 'package:brain_cards/widgets/leave.dart';
 import 'package:brain_cards/models/quiz.dart';
 import 'package:brain_cards/widgets/quiz_progress.dart';
-import 'package:flutter/material.dart';
+import 'package:brain_cards/models/result_list.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class ExamScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class _ExamScreenState extends State<ExamScreen> {
   final CarouselSliderController _carouselController =
       CarouselSliderController();
   int _currentIndex = 0;
+  final Set<int> _correctAnswers = {};
   @override
   Widget build(BuildContext context) {
     List<Quiz> quizzes = quizList[widget.category]!;
@@ -51,7 +53,7 @@ class _ExamScreenState extends State<ExamScreen> {
                   return CustomCard(
                     indexOfQuiz: index,
                     quizzes: quizzes,
-                    onCorrectAnswer: onCorrectAnswer,
+                    onAnswer: onAnswer,
                   );
                 },
                 options: CarouselOptions(
@@ -73,141 +75,102 @@ class _ExamScreenState extends State<ExamScreen> {
           // Navigation Buttons
           Positioned(
             bottom: 50,
-            left: 20,
-            right: 20,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                (_currentIndex <= 0)
-                    ? Container()
-                    : InkWell(
-                        onTap: () {
-                          _carouselController.previousPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.easeIn,
+            left: 60,
+            right: 60,
+            child: InkWell(
+              onTap: () {
+                (_currentIndex == quizzes.length - 1)
+                    ? {
+                        setState(() {
+                          addResult(
+                            category: widget.category,
+                            correctAnswers: _correctAnswers.length,
+                            totalAnswers: quizzes.length,
                           );
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0xFF3B82F6).withOpacity(0.45),
-                                blurRadius: 16,
-                                offset: Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.arrow_back_rounded,
-                                color: Color(0xFF1E3A5F),
-                                size: 26,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                "Previous",
-                                style: TextStyle(
-                                  color: Color(0xFF1E3A5F),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.2,
+                        }),
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.celebration_rounded,
+                                  size: 60,
+                                  color: Colors.green,
                                 ),
-                              ),
-                            ],
+                                SizedBox(height: 20),
+                                Text(
+                                  "Congratulations!",
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                Text(
+                                  "You have completed the quiz.\nAnd your result is ${_correctAnswers.length}/${quizzes.length}",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text("Exit"),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
+                      }
+                    : null;
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                height: 56,
+                decoration: BoxDecoration(
+                  color: (_currentIndex == quizzes.length - 1)
+                      ? Color(0xFF57CA5B)
+                      : Color(0xFF979797),
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (_currentIndex == quizzes.length - 1)
+                          ? Color(0xFF5ADB5E).withOpacity(0.45)
+                          : Color(0xFF979797),
+                      blurRadius: 16,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.done_all_rounded, color: Colors.white, size: 26),
+                    SizedBox(width: 8),
+                    Text(
+                      "Finish",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
                       ),
-                (_currentIndex >= quizzes.length - 1)
-                    ? InkWell(
-                        onTap: () {},
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF5ADB5E),
-                            borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(
-                                  0xFF5ADB5E,
-                                ).withOpacity(0.45),
-                                blurRadius: 16,
-                                offset: Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.done_all_rounded,
-                                color: Colors.white,
-                                size: 26,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                "Finish",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : InkWell(
-                        onTap: () {
-                          _carouselController.nextPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.easeIn,
-                          );
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0xFF3B82F6).withOpacity(0.45),
-                                blurRadius: 16,
-                                offset: Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.arrow_forward_rounded,
-                                color: Color(0xFF1E3A5F),
-                                size: 26,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                "Next",
-                                style: TextStyle(
-                                  color: Color(0xFF1E3A5F),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-              ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
           // Pop Scope ==> Leaving the Exam
@@ -227,12 +190,15 @@ class _ExamScreenState extends State<ExamScreen> {
     );
   }
 
-  void onCorrectAnswer(bool isCorrect) {
+  void onAnswer(bool isCorrect, int quizIndex) {
+    _carouselController.nextPage(
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeIn,
+    );
     if (isCorrect) {
-      _carouselController.nextPage(
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeIn,
-      );
+      setState(() {
+        _correctAnswers.add(quizIndex);
+      });
     }
   }
 }
